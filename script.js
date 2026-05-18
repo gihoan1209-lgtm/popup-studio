@@ -333,6 +333,9 @@ function normalizeInfoItems(nextState) {
       value: item.value || "",
       color: item.color || "",
       valueColor: item.valueColor || "",
+      labelSize: item.labelSize || "",
+      valueSize: item.valueSize || "",
+      calendarSize: item.calendarSize || "",
       startDate: item.startDate || "",
       endDate: item.endDate || "",
       calendarText: item.calendarText || "",
@@ -365,6 +368,23 @@ function itemLabelColor(item) {
 
 function itemContentColor(item) {
   return safeColor(item.valueColor, state.itemValueColor);
+}
+
+function safeSize(value, fallback) {
+  const size = Number(value);
+  return Number.isFinite(size) && size >= 6 && size <= 80 ? size : Number(fallback);
+}
+
+function itemLabelSize(item) {
+  return safeSize(item.labelSize, state.itemSize);
+}
+
+function itemContentSize(item) {
+  return safeSize(item.valueSize, state.itemSize);
+}
+
+function itemCalendarSize(item) {
+  return safeSize(item.calendarSize, Math.max(7, Math.round(Number(state.itemSize) * 0.48)));
 }
 
 function parseMonthDayToken(value) {
@@ -436,6 +456,7 @@ function holidayRanges(start) {
         label: (item.calendarText || item.label || item.value).trim(),
         color: itemLabelColor(item),
         valueColor: itemContentColor(item),
+        size: itemCalendarSize(item),
         from,
         to,
       };
@@ -504,6 +525,22 @@ function renderItemColorEditor() {
         내용 색
         <input type="color" value="${itemContentColor(item)}" data-item-color-field="valueColor" data-index="${index}" />
       </label>
+      <label>
+        항목 크기
+        <input type="number" min="6" max="80" value="${itemLabelSize(item)}" data-item-color-field="labelSize" data-index="${index}" />
+      </label>
+      <label>
+        내용 크기
+        <input type="number" min="6" max="80" value="${itemContentSize(item)}" data-item-color-field="valueSize" data-index="${index}" />
+      </label>
+      ${
+        state.templateType === "holidayCalendar"
+          ? `<label>
+              날짜칸 크기
+              <input type="number" min="6" max="32" value="${itemCalendarSize(item)}" data-item-color-field="calendarSize" data-index="${index}" />
+            </label>`
+          : ""
+      }
     `;
     itemColorEditor.append(row);
   });
@@ -549,9 +586,9 @@ function infoList(extraClass = "") {
     .map(
       (item) => `
         <div class="info-row">
-          <strong style="color:${itemLabelColor(item)}">${escapeHtml(item.label)}</strong>
+          <strong style="color:${itemLabelColor(item)};font-size:${itemLabelSize(item)}px">${escapeHtml(item.label)}</strong>
           <span class="divider"></span>
-          <b style="color:${itemContentColor(item)}">${escapeHtml(item.value)}</b>
+          <b style="color:${itemContentColor(item)};font-size:${itemContentSize(item)}px">${escapeHtml(item.value)}</b>
         </div>
       `
     )
@@ -569,7 +606,7 @@ function calendar() {
     date.setDate(start.getDate() + index);
     const events = ranges.filter((range) => sameOrBetween(date, range.from, range.to));
     const eventHtml = events.length
-      ? `<div class="day-events">${events.map((event) => `<span style="background:${event.color};color:${event.valueColor}">${escapeHtml(event.label)}</span>`).join("")}</div>`
+      ? `<div class="day-events">${events.map((event) => `<span style="background:${event.color};color:${event.valueColor};font-size:${event.size}px">${escapeHtml(event.label)}</span>`).join("")}</div>`
       : "";
     return `<div class="day-cell ${events.length ? "marked" : ""}"><strong>${date.getDate()}</strong>${eventHtml}</div>`;
   }).join("");
@@ -584,7 +621,7 @@ function calendar() {
 function legendList() {
   if (!state.showItems) return "";
   return `<div class="legend-list">${visibleItems()
-    .map((item) => `<div class="legend-row"><strong style="background:${itemLabelColor(item)}">${escapeHtml(item.label)}</strong><b style="color:${itemContentColor(item)}">${escapeHtml(item.value || formatDateRange(item.startDate, item.endDate))}</b></div>`)
+    .map((item) => `<div class="legend-row"><strong style="background:${itemLabelColor(item)};font-size:${itemLabelSize(item)}px">${escapeHtml(item.label)}</strong><b style="color:${itemContentColor(item)};font-size:${itemContentSize(item)}px">${escapeHtml(item.value || formatDateRange(item.startDate, item.endDate))}</b></div>`)
     .join("")}</div>`;
 }
 

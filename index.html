@@ -21,10 +21,7 @@
           </button>
         </div>
 
-        <div class="tabs" role="tablist" aria-label="편집 탭">
-          <button class="tab-button active" type="button" data-tab="content">내용</button>
-          <button class="tab-button" type="button" data-tab="design">디자인</button>
-        </div>
+        <div class="editor-section-title">기본 내용</div>
 
         <div class="control-grid tab-panel active" data-panel="content">
           <label class="wide">
@@ -107,7 +104,9 @@
           </div>
         </div>
 
-        <div class="control-grid tab-panel" data-panel="design">
+        <div class="editor-section-title">디자인</div>
+
+        <div class="control-grid tab-panel active" data-panel="design">
           <label>
             배경색
             <input id="cardBgColor" type="color" />
@@ -141,7 +140,7 @@
             <input id="itemValueColor" type="color" />
           </label>
           <div class="wide editor-block">
-            <div class="section-title">항목별 색상</div>
+            <div class="section-title">항목별 색상/크기</div>
             <div id="itemColorEditor" class="item-color-editor"></div>
           </div>
           <label>
