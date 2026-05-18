@@ -151,7 +151,7 @@ const templates = {
     titleSize: "28",
     bodySize: "17",
     itemSize: "18",
-    imageSize: "170",
+    imageSize: "220",
     imageZoom: "100",
     imageOffsetX: "0",
     imageOffsetY: "0",
