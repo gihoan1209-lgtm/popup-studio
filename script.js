@@ -821,6 +821,15 @@ document.querySelectorAll(".tab-button").forEach((button) => {
   });
 });
 
+document.querySelectorAll("[data-toggle-section]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const section = document.querySelector(`[data-editor-section='${button.dataset.toggleSection}']`);
+    if (!section) return;
+    const collapsed = section.classList.toggle("collapsed");
+    button.textContent = collapsed ? "펼치기" : "접기";
+  });
+});
+
 $("resetButton").addEventListener("click", () => switchTemplate(state.templateType));
 $("downloadButton").addEventListener("click", downloadPng);
 document.addEventListener("contextmenu", (event) => event.preventDefault());

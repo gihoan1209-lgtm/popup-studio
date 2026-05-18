@@ -42,7 +42,7 @@ textarea {
 
 .app-shell {
   display: grid;
-  grid-template-columns: minmax(330px, 430px) minmax(420px, 1fr);
+  grid-template-columns: minmax(640px, 760px) minmax(420px, 1fr);
   gap: 24px;
   min-height: 100vh;
   padding: 24px;
@@ -102,6 +102,10 @@ h1 {
 }
 
 .editor-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   margin-top: 22px;
   padding-top: 18px;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
@@ -112,6 +116,49 @@ h1 {
 
 .brand-row + .editor-section-title {
   margin-top: 20px;
+}
+
+.editor-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px;
+  margin-top: 20px;
+  align-items: start;
+}
+
+.editor-column {
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+  padding: 14px;
+}
+
+.editor-column .editor-section-title {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.editor-column.collapsed {
+  align-self: start;
+}
+
+.editor-column.collapsed .tab-panel {
+  display: none;
+}
+
+.collapse-button {
+  min-height: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.86);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 0 10px;
+  white-space: nowrap;
 }
 
 .tab-button {
@@ -133,7 +180,7 @@ h1 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
-  margin-top: 18px;
+  margin-top: 14px;
 }
 
 .control-grid.nested {
@@ -624,6 +671,16 @@ input[type="range"],
   color: #111;
   text-decoration: underline;
   text-underline-offset: 4px;
+}
+
+@media (max-width: 1120px) {
+  .app-shell {
+    grid-template-columns: minmax(600px, 720px) minmax(380px, 1fr);
+  }
+
+  .editor-columns {
+    grid-template-columns: 1fr;
+  }
 }
 
 body.exporting-png .popup-card {

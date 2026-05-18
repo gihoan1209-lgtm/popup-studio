@@ -21,206 +21,218 @@
           </button>
         </div>
 
-        <div class="editor-section-title">기본 내용</div>
+        <div class="editor-columns">
+          <section class="editor-column" data-editor-section="content">
+            <div class="editor-section-title">
+              <span>기본 내용</span>
+              <button class="collapse-button" type="button" data-toggle-section="content">접기</button>
+            </div>
 
-        <div class="control-grid tab-panel active" data-panel="content">
-          <label class="wide">
-            템플릿
-            <select id="templateType">
-              <option value="migration">사이트 이전 안내</option>
-              <option value="holidayCalendar">휴무 일정 캘린더</option>
-              <option value="detailChange">상세페이지 변경 안내</option>
-              <option value="productStop">판매중단 공지</option>
-              <option value="holidayList">휴무일 목록 안내</option>
-            </select>
-          </label>
-
-          <label>
-            배지/상단 문구
-            <input id="badgeText" type="text" />
-          </label>
-          <label>
-            제목
-            <input id="titleText" type="text" />
-          </label>
-          <label class="wide">
-            본문
-            <textarea id="bodyText" rows="5"></textarea>
-          </label>
-          <label>
-            하단 안내
-            <input id="noteText" type="text" />
-          </label>
-          <label>
-            버튼
-            <input id="primaryButton" type="text" />
-          </label>
-
-          <div class="wide editor-block" data-template-tools="holidayCalendar">
-            <div class="section-title">휴무 캘린더</div>
-            <div class="control-grid nested">
-              <label>
-                시작일
-                <input id="calendarStart" type="date" />
-              </label>
-              <label>
-                표시 기간
-                <select id="calendarWeeks">
-                  <option value="1">1주</option>
-                  <option value="2">2주</option>
+            <div class="control-grid tab-panel active" data-panel="content">
+              <label class="wide">
+                템플릿
+                <select id="templateType">
+                  <option value="migration">사이트 이전 안내</option>
+                  <option value="holidayCalendar">휴무 일정 캘린더</option>
+                  <option value="detailChange">상세페이지 변경 안내</option>
+                  <option value="productStop">판매중단 공지</option>
+                  <option value="holidayList">휴무일 목록 안내</option>
                 </select>
               </label>
-            </div>
-          </div>
 
-          <div class="wide editor-block" data-template-tools="productStop">
-            <div class="section-title">상품 이미지</div>
-            <input id="productImageInput" type="file" accept="image/*" />
-            <div class="control-grid nested image-controls">
               <label>
-                이미지 확대
-                <input id="imageZoom" type="range" min="80" max="220" />
+                배지/상단 문구
+                <input id="badgeText" type="text" />
               </label>
               <label>
-                가로 위치
-                <input id="imageOffsetX" type="range" min="-80" max="80" />
+                제목
+                <input id="titleText" type="text" />
+              </label>
+              <label class="wide">
+                본문
+                <textarea id="bodyText" rows="5"></textarea>
               </label>
               <label>
-                세로 위치
-                <input id="imageOffsetY" type="range" min="-80" max="80" />
+                하단 안내
+                <input id="noteText" type="text" />
+              </label>
+              <label>
+                버튼
+                <input id="primaryButton" type="text" />
+              </label>
+
+              <div class="wide editor-block" data-template-tools="holidayCalendar">
+                <div class="section-title">휴무 캘린더</div>
+                <div class="control-grid nested">
+                  <label>
+                    시작일
+                    <input id="calendarStart" type="date" />
+                  </label>
+                  <label>
+                    표시 기간
+                    <select id="calendarWeeks">
+                      <option value="1">1주</option>
+                      <option value="2">2주</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+
+              <div class="wide editor-block" data-template-tools="productStop">
+                <div class="section-title">상품 이미지</div>
+                <input id="productImageInput" type="file" accept="image/*" />
+                <div class="control-grid nested image-controls">
+                  <label>
+                    이미지 확대
+                    <input id="imageZoom" type="range" min="80" max="220" />
+                  </label>
+                  <label>
+                    가로 위치
+                    <input id="imageOffsetX" type="range" min="-80" max="80" />
+                  </label>
+                  <label>
+                    세로 위치
+                    <input id="imageOffsetY" type="range" min="-80" max="80" />
+                  </label>
+                  <label>
+                    모서리
+                    <input id="imageRadius" type="range" min="0" max="50" />
+                  </label>
+                </div>
+                <button id="clearImageButton" class="secondary-action" type="button">이미지 제거</button>
+              </div>
+
+              <div class="wide editor-block">
+                <div class="section-title">항목</div>
+                <div id="infoItemEditor" class="item-editor"></div>
+                <button id="addInfoItemButton" class="secondary-action" type="button">항목 추가</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="editor-column" data-editor-section="design">
+            <div class="editor-section-title">
+              <span>디자인</span>
+              <button class="collapse-button" type="button" data-toggle-section="design">접기</button>
+            </div>
+
+            <div class="control-grid tab-panel active" data-panel="design">
+              <label>
+                배경색
+                <input id="cardBgColor" type="color" />
+              </label>
+              <label>
+                보조 배경
+                <input id="panelBgColor" type="color" />
+              </label>
+              <label>
+                강조색
+                <input id="accentColor" type="color" />
+              </label>
+              <label>
+                보조색
+                <input id="secondaryColor" type="color" />
+              </label>
+              <label>
+                제목 글씨
+                <input id="titleColor" type="color" />
+              </label>
+              <label>
+                본문 글씨
+                <input id="bodyColor" type="color" />
+              </label>
+              <label>
+                항목 제목
+                <input id="itemLabelColor" type="color" />
+              </label>
+              <label>
+                항목 내용
+                <input id="itemValueColor" type="color" />
+              </label>
+              <div class="wide editor-block">
+                <div class="section-title">항목별 색상/크기</div>
+                <div id="itemColorEditor" class="item-color-editor"></div>
+              </div>
+              <label>
+                카드 너비
+                <input id="cardWidth" type="range" min="72" max="96" />
+              </label>
+              <label>
+                카드 높이
+                <input id="cardHeight" type="range" min="72" max="96" />
               </label>
               <label>
                 모서리
-                <input id="imageRadius" type="range" min="0" max="50" />
+                <input id="cardRadius" type="range" min="0" max="34" />
+              </label>
+              <label>
+                내부 여백
+                <input id="cardPadding" type="range" min="18" max="58" />
+              </label>
+              <label>
+                제목 크기
+                <input id="titleSize" type="range" min="26" max="68" />
+              </label>
+              <label>
+                본문 크기
+                <input id="bodySize" type="range" min="14" max="30" />
+              </label>
+              <label>
+                항목 크기
+                <input id="itemSize" type="range" min="13" max="28" />
+              </label>
+              <label>
+                이미지 크기
+                <input id="imageSize" type="range" min="92" max="230" />
+              </label>
+              <label>
+                전체 정렬
+                <select id="contentAlign">
+                  <option value="center">가운데</option>
+                  <option value="left">왼쪽</option>
+                </select>
+              </label>
+              <label>
+                항목 정렬
+                <select id="itemAlign">
+                  <option value="left">왼쪽</option>
+                  <option value="center">가운데</option>
+                </select>
+              </label>
+              <label class="check-row">
+                <input id="showBadge" type="checkbox" />
+                배지 표시
+              </label>
+              <label class="check-row">
+                <input id="showBody" type="checkbox" />
+                본문 표시
+              </label>
+              <label class="check-row">
+                <input id="showItems" type="checkbox" />
+                항목 표시
+              </label>
+              <label class="check-row">
+                <input id="showNote" type="checkbox" />
+                하단 안내 표시
+              </label>
+              <label class="check-row">
+                <input id="showButton" type="checkbox" />
+                버튼 표시
+              </label>
+              <label class="check-row">
+                <input id="showImage" type="checkbox" />
+                이미지 표시
+              </label>
+              <label>
+                저장 가로(px)
+                <input id="exportWidth" type="number" min="100" max="3000" step="10" />
+              </label>
+              <label>
+                저장 세로(px)
+                <input id="exportHeight" type="number" min="100" max="3000" step="10" />
               </label>
             </div>
-            <button id="clearImageButton" class="secondary-action" type="button">이미지 제거</button>
-          </div>
-
-          <div class="wide editor-block">
-            <div class="section-title">항목</div>
-            <div id="infoItemEditor" class="item-editor"></div>
-            <button id="addInfoItemButton" class="secondary-action" type="button">항목 추가</button>
-          </div>
-        </div>
-
-        <div class="editor-section-title">디자인</div>
-
-        <div class="control-grid tab-panel active" data-panel="design">
-          <label>
-            배경색
-            <input id="cardBgColor" type="color" />
-          </label>
-          <label>
-            보조 배경
-            <input id="panelBgColor" type="color" />
-          </label>
-          <label>
-            강조색
-            <input id="accentColor" type="color" />
-          </label>
-          <label>
-            보조색
-            <input id="secondaryColor" type="color" />
-          </label>
-          <label>
-            제목 글씨
-            <input id="titleColor" type="color" />
-          </label>
-          <label>
-            본문 글씨
-            <input id="bodyColor" type="color" />
-          </label>
-          <label>
-            항목 제목
-            <input id="itemLabelColor" type="color" />
-          </label>
-          <label>
-            항목 내용
-            <input id="itemValueColor" type="color" />
-          </label>
-          <div class="wide editor-block">
-            <div class="section-title">항목별 색상/크기</div>
-            <div id="itemColorEditor" class="item-color-editor"></div>
-          </div>
-          <label>
-            카드 너비
-            <input id="cardWidth" type="range" min="72" max="96" />
-          </label>
-          <label>
-            카드 높이
-            <input id="cardHeight" type="range" min="72" max="96" />
-          </label>
-          <label>
-            모서리
-            <input id="cardRadius" type="range" min="0" max="34" />
-          </label>
-          <label>
-            내부 여백
-            <input id="cardPadding" type="range" min="18" max="58" />
-          </label>
-          <label>
-            제목 크기
-            <input id="titleSize" type="range" min="26" max="68" />
-          </label>
-          <label>
-            본문 크기
-            <input id="bodySize" type="range" min="14" max="30" />
-          </label>
-          <label>
-            항목 크기
-            <input id="itemSize" type="range" min="13" max="28" />
-          </label>
-          <label>
-            이미지 크기
-            <input id="imageSize" type="range" min="92" max="230" />
-          </label>
-          <label>
-            전체 정렬
-            <select id="contentAlign">
-              <option value="center">가운데</option>
-              <option value="left">왼쪽</option>
-            </select>
-          </label>
-          <label>
-            항목 정렬
-            <select id="itemAlign">
-              <option value="left">왼쪽</option>
-              <option value="center">가운데</option>
-            </select>
-          </label>
-          <label class="check-row">
-            <input id="showBadge" type="checkbox" />
-            배지 표시
-          </label>
-          <label class="check-row">
-            <input id="showBody" type="checkbox" />
-            본문 표시
-          </label>
-          <label class="check-row">
-            <input id="showItems" type="checkbox" />
-            항목 표시
-          </label>
-          <label class="check-row">
-            <input id="showNote" type="checkbox" />
-            하단 안내 표시
-          </label>
-          <label class="check-row">
-            <input id="showButton" type="checkbox" />
-            버튼 표시
-          </label>
-          <label class="check-row">
-            <input id="showImage" type="checkbox" />
-            이미지 표시
-          </label>
-          <label>
-            저장 가로(px)
-            <input id="exportWidth" type="number" min="100" max="3000" step="10" />
-          </label>
-          <label>
-            저장 세로(px)
-            <input id="exportHeight" type="number" min="100" max="3000" step="10" />
-          </label>
+          </section>
         </div>
 
         <div class="actions">
