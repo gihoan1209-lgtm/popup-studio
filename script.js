@@ -51,8 +51,8 @@ const templates = {
     noteText: "",
     primaryButton: "",
     infoItems: [
-      { label: "택배사 휴무", value: "9/26~10/3" },
-      { label: "고객센터 휴무", value: "9/27~10/2" },
+      { label: "택배사 휴무", value: "9/26~10/3", startDate: "2026-09-26", endDate: "2026-10-03", calendarText: "택배사 휴무" },
+      { label: "고객센터 휴무", value: "9/27~10/2", startDate: "2026-09-27", endDate: "2026-10-02", calendarText: "고객센터 휴무" },
     ],
     cardBgColor: "#efefef",
     panelBgColor: "#ffffff",
@@ -273,7 +273,9 @@ function clone(value) {
 function withTemplateDefaults(nextState) {
   const templateType = nextState.templateType || "migration";
   const template = templates[templateType] || templates.migration;
-  return { templateType, ...clone(template), ...nextState };
+  const merged = { templateType, ...clone(template), ...nextState };
+  merged.infoItems = normalizeInfoItems(merged);
+  return merged;
 }
 
 function inputValue(input) {
@@ -323,6 +325,36 @@ function visibleItems() {
   return state.infoItems.filter((item) => item.label.trim() || item.value.trim());
 }
 
+function normalizeInfoItems(nextState) {
+  const items = Array.isArray(nextState.infoItems) ? nextState.infoItems : [];
+  return items.map((item) => {
+    const normalized = {
+      label: item.label || "",
+      value: item.value || "",
+      color: item.color || "",
+      valueColor: item.valueColor || "",
+      startDate: item.startDate || "",
+      endDate: item.endDate || "",
+      calendarText: item.calendarText || "",
+    };
+
+    if (nextState.templateType === "holidayCalendar" && (!normalized.startDate || !normalized.endDate)) {
+      const range = rangeFromText(`${normalized.label} ${normalized.value}`, nextState.calendarStart);
+      if (range) {
+        normalized.startDate ||= dateInputValue(range.from);
+        normalized.endDate ||= dateInputValue(range.to);
+      }
+    }
+
+    if (nextState.templateType === "holidayCalendar") {
+      normalized.value = normalized.value || formatDateRange(normalized.startDate, normalized.endDate);
+      normalized.calendarText = normalized.calendarText || normalized.label;
+    }
+
+    return normalized;
+  });
+}
+
 function safeColor(value, fallback) {
   return /^#[0-9a-fA-F]{6}$/.test(String(value || "")) ? value : fallback;
 }
@@ -348,24 +380,60 @@ function dateFromMonthDay(token, baseYear, startMonth) {
   return new Date(year, token.month - 1, token.day);
 }
 
-function holidayRanges(start) {
+function dateInputValue(date) {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function dateLabel(value) {
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return "";
+  return `${date.getMonth() + 1}/${date.getDate()}`;
+}
+
+function formatDateRange(startDate, endDate) {
+  const start = dateLabel(startDate);
+  const end = dateLabel(endDate);
+  if (!start && !end) return "";
+  if (!end || start === end) return start;
+  return `${start}~${end}`;
+}
+
+function rangeFromText(source, calendarStart) {
+  const start = new Date(`${calendarStart}T00:00:00`);
+  if (Number.isNaN(start.getTime())) return null;
   const baseYear = start.getFullYear();
   const startMonth = start.getMonth() + 1;
+  const tokens = [...String(source || "").matchAll(/(\d{1,2})[/.](\d{1,2})/g)]
+    .map((match) => parseMonthDayToken(match[0]))
+    .filter(Boolean);
+  if (tokens.length === 0) return null;
 
+  const from = dateFromMonthDay(tokens[0], baseYear, startMonth);
+  const to = dateFromMonthDay(tokens[1] || tokens[0], baseYear, startMonth);
+  if (to < from) to.setFullYear(to.getFullYear() + 1);
+  return { from, to };
+}
+
+function holidayRanges(start) {
   return visibleItems()
     .map((item) => {
-      const source = `${item.label} ${item.value}`;
-      const tokens = [...source.matchAll(/(\d{1,2})[/.](\d{1,2})/g)]
-        .map((match) => parseMonthDayToken(match[0]))
-        .filter(Boolean);
-      if (tokens.length === 0) return null;
-
-      const from = dateFromMonthDay(tokens[0], baseYear, startMonth);
-      const to = dateFromMonthDay(tokens[1] || tokens[0], baseYear, startMonth);
+      let from = new Date(`${item.startDate}T00:00:00`);
+      let to = new Date(`${(item.endDate || item.startDate)}T00:00:00`);
+      if (Number.isNaN(from.getTime())) {
+        const parsed = rangeFromText(`${item.label} ${item.value}`, dateInputValue(start));
+        if (!parsed) return null;
+        from = parsed.from;
+        to = parsed.to;
+      }
+      if (Number.isNaN(to.getTime())) to = new Date(from);
       if (to < from) to.setFullYear(to.getFullYear() + 1);
 
       return {
-        label: item.label.trim() || item.value.trim(),
+        label: (item.calendarText || item.label || item.value).trim(),
         color: itemLabelColor(item),
         valueColor: itemContentColor(item),
         from,
@@ -384,12 +452,22 @@ function renderInfoEditor() {
   infoItemEditor.innerHTML = "";
   state.infoItems.forEach((item, index) => {
     const row = document.createElement("div");
-    row.className = "item-edit-row";
-    row.innerHTML = `
-      <input type="text" placeholder="항목 제목" value="${escapeHtml(item.label)}" data-info-field="label" data-index="${index}" />
-      <input type="text" placeholder="항목 내용" value="${escapeHtml(item.value)}" data-info-field="value" data-index="${index}" />
-      <button type="button" aria-label="삭제" data-remove-index="${index}">×</button>
-    `;
+    row.className = state.templateType === "holidayCalendar" ? "item-edit-row calendar-item-row" : "item-edit-row";
+    row.innerHTML =
+      state.templateType === "holidayCalendar"
+        ? `
+          <input type="text" placeholder="항목 제목" value="${escapeHtml(item.label)}" data-info-field="label" data-index="${index}" />
+          <input type="date" value="${escapeHtml(item.startDate || "")}" data-info-field="startDate" data-index="${index}" />
+          <button type="button" aria-label="삭제" data-remove-index="${index}">×</button>
+          <input type="date" value="${escapeHtml(item.endDate || item.startDate || "")}" data-info-field="endDate" data-index="${index}" />
+          <input type="text" placeholder="날짜칸 문구" value="${escapeHtml(item.calendarText || item.label)}" data-info-field="calendarText" data-index="${index}" />
+          <span class="date-range-preview">${escapeHtml(formatDateRange(item.startDate, item.endDate))}</span>
+        `
+        : `
+          <input type="text" placeholder="항목 제목" value="${escapeHtml(item.label)}" data-info-field="label" data-index="${index}" />
+          <input type="text" placeholder="항목 내용" value="${escapeHtml(item.value)}" data-info-field="value" data-index="${index}" />
+          <button type="button" aria-label="삭제" data-remove-index="${index}">×</button>
+        `;
     infoItemEditor.append(row);
   });
 }
@@ -496,7 +574,7 @@ function calendar() {
 function legendList() {
   if (!state.showItems) return "";
   return `<div class="legend-list">${visibleItems()
-    .map((item) => `<div class="legend-row"><strong style="background:${itemLabelColor(item)}">${escapeHtml(item.label)}</strong><b style="color:${itemContentColor(item)}">${escapeHtml(item.value)}</b></div>`)
+    .map((item) => `<div class="legend-row"><strong style="background:${itemLabelColor(item)}">${escapeHtml(item.label)}</strong><b style="color:${itemContentColor(item)}">${escapeHtml(item.value || formatDateRange(item.startDate, item.endDate))}</b></div>`)
     .join("")}</div>`;
 }
 
@@ -624,7 +702,13 @@ infoItemEditor.addEventListener("input", (event) => {
   const field = event.target.dataset.infoField;
   if (!Number.isNaN(index) && field) {
     state.infoItems[index][field] = event.target.value;
+    if (state.templateType === "holidayCalendar") {
+      const item = state.infoItems[index];
+      if (field === "label" && !item.calendarText) item.calendarText = event.target.value;
+      item.value = formatDateRange(item.startDate, item.endDate);
+    }
     saveState();
+    if (state.templateType === "holidayCalendar" && ["startDate", "endDate"].includes(field)) renderInfoEditor();
     renderItemColorEditor();
     renderCard();
   }
@@ -652,7 +736,11 @@ infoItemEditor.addEventListener("click", (event) => {
 });
 
 $("addInfoItemButton").addEventListener("click", () => {
-  state.infoItems.push({ label: "", value: "", color: "", valueColor: "" });
+  const nextItem =
+    state.templateType === "holidayCalendar"
+      ? { label: "", value: "", startDate: state.calendarStart, endDate: state.calendarStart, calendarText: "", color: "", valueColor: "" }
+      : { label: "", value: "", color: "", valueColor: "" };
+  state.infoItems.push(nextItem);
   renderInfoEditor();
   renderItemColorEditor();
   saveState();
