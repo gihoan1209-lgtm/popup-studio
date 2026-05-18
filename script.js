@@ -259,12 +259,15 @@ const fields = [
 ];
 
 const storageKey = "popup-studio-template-state-v3";
+const savedProjectsKey = "popup-studio-saved-projects-v1";
 let state = { templateType: "migration", ...templates.migration };
 
 const $ = (id) => document.getElementById(id);
 const card = $("popupCard");
 const infoItemEditor = $("infoItemEditor");
 const itemColorEditor = $("itemColorEditor");
+const saveNameInput = $("saveNameInput");
+const savedProjectSelect = $("savedProjectSelect");
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -319,6 +322,103 @@ function applyVariables() {
 
 function saveState() {
   localStorage.setItem(storageKey, JSON.stringify(state));
+}
+
+function savedProjects() {
+  try {
+    const projects = JSON.parse(localStorage.getItem(savedProjectsKey) || "[]");
+    return Array.isArray(projects) ? projects : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeSavedProjects(projects) {
+  localStorage.setItem(savedProjectsKey, JSON.stringify(projects));
+}
+
+function defaultProjectName() {
+  const title = state.titleText || state.badgeText || "팝업 작업";
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const hour = String(now.getHours()).padStart(2, "0");
+  const minute = String(now.getMinutes()).padStart(2, "0");
+  return `${title} ${month}/${day} ${hour}:${minute}`;
+}
+
+function renderSavedProjects() {
+  if (!savedProjectSelect) return;
+  const projects = savedProjects();
+  savedProjectSelect.innerHTML = "";
+  const emptyOption = document.createElement("option");
+  emptyOption.value = "";
+  emptyOption.textContent = projects.length ? "저장본 선택" : "저장된 작업 없음";
+  savedProjectSelect.append(emptyOption);
+
+  projects.forEach((project) => {
+    const option = document.createElement("option");
+    option.value = project.id;
+    option.textContent = project.name;
+    savedProjectSelect.append(option);
+  });
+}
+
+function saveProject() {
+  const name = (saveNameInput.value || "").trim() || defaultProjectName();
+  const projects = savedProjects();
+  const selectedId = savedProjectSelect.value;
+  const existingIndex = projects.findIndex((project) => project.id === selectedId || project.name === name);
+  const project = {
+    id: existingIndex >= 0 ? projects[existingIndex].id : String(Date.now()),
+    name,
+    updatedAt: new Date().toISOString(),
+    state: clone(state),
+  };
+
+  if (existingIndex >= 0) {
+    projects[existingIndex] = project;
+  } else {
+    projects.unshift(project);
+  }
+
+  try {
+    writeSavedProjects(projects);
+  } catch (error) {
+    alert("작업 저장에 실패했습니다. 이미지 용량이 너무 크면 저장 공간을 초과할 수 있습니다.");
+    return;
+  }
+
+  saveNameInput.value = name;
+  renderSavedProjects();
+  savedProjectSelect.value = project.id;
+}
+
+function loadProject() {
+  const id = savedProjectSelect.value;
+  if (!id) {
+    alert("불러올 저장본을 선택해주세요.");
+    return;
+  }
+  const project = savedProjects().find((item) => item.id === id);
+  if (!project) return;
+  state = withTemplateDefaults(project.state);
+  saveState();
+  saveNameInput.value = project.name;
+  renderControls();
+  savedProjectSelect.value = id;
+}
+
+function deleteProject() {
+  const id = savedProjectSelect.value;
+  if (!id) {
+    alert("삭제할 저장본을 선택해주세요.");
+    return;
+  }
+  const projects = savedProjects().filter((project) => project.id !== id);
+  writeSavedProjects(projects);
+  saveNameInput.value = "";
+  renderSavedProjects();
 }
 
 function visibleItems() {
@@ -675,6 +775,7 @@ function renderControls() {
   });
   renderInfoEditor();
   renderItemColorEditor();
+  renderSavedProjects();
   renderCard();
 }
 
@@ -833,6 +934,9 @@ document.querySelectorAll("[data-toggle-section]").forEach((button) => {
 });
 
 $("resetButton").addEventListener("click", () => switchTemplate(state.templateType));
+$("saveProjectButton").addEventListener("click", saveProject);
+$("loadProjectButton").addEventListener("click", loadProject);
+$("deleteProjectButton").addEventListener("click", deleteProject);
 $("downloadButton").addEventListener("click", downloadPng);
 document.addEventListener("contextmenu", (event) => event.preventDefault());
 document.addEventListener("copy", (event) => event.preventDefault());
