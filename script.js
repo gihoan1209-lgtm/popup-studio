@@ -1,13 +1,13 @@
 const templates = {
   migration: {
-    badgeText: "NEW SITE OPEN",
-    titleText: "사이트 이전 안내",
-    bodyText: "더 나은 서비스 제공을 위해\n새로운 사이트로 이전합니다.\n자세한 사항은 공지사항으로\n확인 부탁드리겠습니다.",
-    noteText: "※ 자세한 내용은 공지사항 및 고객센터를 확인해주세요.",
-    primaryButton: "새 사이트 바로가기",
+    badgeText: "여기에 작성하세요",
+    titleText: "여기에 작성하세요",
+    bodyText: "여기에 작성하세요",
+    noteText: "여기에 작성하세요",
+    primaryButton: "여기에 작성하세요",
     infoItems: [
-      { label: "🚨 이전일정", value: "2026.05.26" },
-      { label: "🔚 기존 사이트 종료", value: "2026.05.22" },
+      { label: "여기에 작성하세요", value: "여기에 작성하세요" },
+      { label: "여기에 작성하세요", value: "여기에 작성하세요" },
     ],
     cardBgColor: "#080b13",
     panelBgColor: "#151126",
@@ -44,14 +44,14 @@ const templates = {
     exportHeight: "350",
   },
   holidayCalendar: {
-    badgeText: "휴무일 공지",
-    titleText: "추석 휴무일정",
+    badgeText: "여기에 작성하세요",
+    titleText: "여기에 작성하세요",
     bodyText: "",
     noteText: "",
     primaryButton: "",
     infoItems: [
-      { label: "택배사 휴무", value: "9/26~10/3" },
-      { label: "펀타스틱 고객센터 휴무", value: "9/27~10/2" },
+      { label: "여기에 작성하세요", value: "9/26~10/3" },
+      { label: "여기에 작성하세요", value: "9/27~10/2" },
     ],
     cardBgColor: "#efefef",
     panelBgColor: "#ffffff",
@@ -88,11 +88,11 @@ const templates = {
     exportHeight: "350",
   },
   detailChange: {
-    badgeText: "상세페이지 변경 안내",
-    titleText: "스틱형 빨래비누\n특허권 이미지 변경",
-    bodyText: "상품번호 963",
+    badgeText: "여기에 작성하세요",
+    titleText: "여기에 작성하세요",
+    bodyText: "여기에 작성하세요",
     noteText: "",
-    primaryButton: "내용 확인하기",
+    primaryButton: "여기에 작성하세요",
     infoItems: [],
     cardBgColor: "#000000",
     panelBgColor: "#111111",
@@ -129,10 +129,10 @@ const templates = {
     exportHeight: "350",
   },
   productStop: {
-    badgeText: "🚨 긴급 판매중단 공지",
+    badgeText: "여기에 작성하세요",
     titleText: "",
-    bodyText: "에펀 벤치형 왜건 디자인권 이슈로 인해 판매 중지",
-    noteText: "해당 제품은 현재 판매가 중지되었습니다.\n이용에 불편을 드려 죄송합니다.",
+    bodyText: "여기에 작성하세요",
+    noteText: "여기에 작성하세요",
     primaryButton: "",
     infoItems: [],
     cardBgColor: "#1e3265",
@@ -171,14 +171,14 @@ const templates = {
   },
   holidayList: {
     badgeText: "",
-    titleText: "5월 휴무일 안내",
+    titleText: "여기에 작성하세요",
     bodyText: "",
-    noteText: "※휴무일에는 고객센터가 운영되지 않으니\n이용에 참고부탁드립니다.",
+    noteText: "여기에 작성하세요",
     primaryButton: "",
     infoItems: [
-      { label: "5/1(목), 5/5~6 (월~화)", value: "전체휴무" },
-      { label: "5/2(금)", value: "정상운영" },
-      { label: "5/7일(수)", value: "업무재개" },
+      { label: "여기에 작성하세요", value: "여기에 작성하세요" },
+      { label: "여기에 작성하세요", value: "여기에 작성하세요" },
+      { label: "여기에 작성하세요", value: "여기에 작성하세요" },
     ],
     cardBgColor: "#655bd3",
     panelBgColor: "#ffffff",
@@ -257,12 +257,13 @@ const fields = [
   "exportHeight",
 ];
 
-const storageKey = "popup-studio-template-state-v1";
+const storageKey = "popup-studio-template-state-v2";
 let state = { templateType: "migration", ...templates.migration };
 
 const $ = (id) => document.getElementById(id);
 const card = $("popupCard");
 const infoItemEditor = $("infoItemEditor");
+const itemColorEditor = $("itemColorEditor");
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -321,6 +322,18 @@ function visibleItems() {
   return state.infoItems.filter((item) => item.label.trim() || item.value.trim());
 }
 
+function safeColor(value, fallback) {
+  return /^#[0-9a-fA-F]{6}$/.test(String(value || "")) ? value : fallback;
+}
+
+function itemLabelColor(item) {
+  return safeColor(item.color, state.itemLabelColor);
+}
+
+function itemContentColor(item) {
+  return safeColor(item.valueColor, state.itemValueColor);
+}
+
 function parseMonthDayToken(value) {
   const match = String(value || "").match(/(\d{1,2})[/.](\d{1,2})/);
   if (!match) return null;
@@ -352,6 +365,8 @@ function holidayRanges(start) {
 
       return {
         label: item.label.trim() || item.value.trim(),
+        color: itemLabelColor(item),
+        valueColor: itemContentColor(item),
         from,
         to,
       };
@@ -375,6 +390,33 @@ function renderInfoEditor() {
       <button type="button" aria-label="삭제" data-remove-index="${index}">×</button>
     `;
     infoItemEditor.append(row);
+  });
+}
+
+function renderItemColorEditor() {
+  if (!itemColorEditor) return;
+  itemColorEditor.innerHTML = "";
+  if (state.infoItems.length === 0) {
+    itemColorEditor.innerHTML = `<p class="empty-hint">항목을 추가하면 색상을 따로 지정할 수 있습니다.</p>`;
+    return;
+  }
+
+  state.infoItems.forEach((item, index) => {
+    const row = document.createElement("div");
+    row.className = "item-color-row";
+    const name = item.label.trim() || `항목 ${index + 1}`;
+    row.innerHTML = `
+      <span>${escapeHtml(name)}</span>
+      <label>
+        항목 색
+        <input type="color" value="${itemLabelColor(item)}" data-item-color-field="color" data-index="${index}" />
+      </label>
+      <label>
+        내용 색
+        <input type="color" value="${itemContentColor(item)}" data-item-color-field="valueColor" data-index="${index}" />
+      </label>
+    `;
+    itemColorEditor.append(row);
   });
 }
 
@@ -418,9 +460,9 @@ function infoList(extraClass = "") {
     .map(
       (item) => `
         <div class="info-row">
-          <strong>${escapeHtml(item.label)}</strong>
+          <strong style="color:${itemLabelColor(item)}">${escapeHtml(item.label)}</strong>
           <span class="divider"></span>
-          <b>${escapeHtml(item.value)}</b>
+          <b style="color:${itemContentColor(item)}">${escapeHtml(item.value)}</b>
         </div>
       `
     )
@@ -438,7 +480,7 @@ function calendar() {
     date.setDate(start.getDate() + index);
     const events = ranges.filter((range) => sameOrBetween(date, range.from, range.to));
     const eventHtml = events.length
-      ? `<div class="day-events">${events.map((event) => `<span>${escapeHtml(event.label)}</span>`).join("")}</div>`
+      ? `<div class="day-events">${events.map((event) => `<span style="background:${event.color};color:${event.valueColor}">${escapeHtml(event.label)}</span>`).join("")}</div>`
       : "";
     return `<div class="day-cell ${events.length ? "marked" : ""}"><strong>${date.getDate()}</strong>${eventHtml}</div>`;
   }).join("");
@@ -453,7 +495,7 @@ function calendar() {
 function legendList() {
   if (!state.showItems) return "";
   return `<div class="legend-list">${visibleItems()
-    .map((item) => `<div class="legend-row"><strong>${escapeHtml(item.label)}</strong><b>${escapeHtml(item.value)}</b></div>`)
+    .map((item) => `<div class="legend-row"><strong style="background:${itemLabelColor(item)}">${escapeHtml(item.label)}</strong><b style="color:${itemContentColor(item)}">${escapeHtml(item.value)}</b></div>`)
     .join("")}</div>`;
 }
 
@@ -506,6 +548,7 @@ function renderControls() {
     node.classList.toggle("hidden", node.dataset.templateTools !== state.templateType);
   });
   renderInfoEditor();
+  renderItemColorEditor();
   renderCard();
 }
 
@@ -581,6 +624,17 @@ infoItemEditor.addEventListener("input", (event) => {
   if (!Number.isNaN(index) && field) {
     state.infoItems[index][field] = event.target.value;
     saveState();
+    renderItemColorEditor();
+    renderCard();
+  }
+});
+
+itemColorEditor.addEventListener("input", (event) => {
+  const index = Number(event.target.dataset.index);
+  const field = event.target.dataset.itemColorField;
+  if (!Number.isNaN(index) && field) {
+    state.infoItems[index][field] = event.target.value;
+    saveState();
     renderCard();
   }
 });
@@ -590,14 +644,16 @@ infoItemEditor.addEventListener("click", (event) => {
   if (!Number.isNaN(index)) {
     state.infoItems.splice(index, 1);
     renderInfoEditor();
+    renderItemColorEditor();
     saveState();
     renderCard();
   }
 });
 
 $("addInfoItemButton").addEventListener("click", () => {
-  state.infoItems.push({ label: "", value: "" });
+  state.infoItems.push({ label: "", value: "", color: "", valueColor: "" });
   renderInfoEditor();
+  renderItemColorEditor();
   saveState();
 });
 

@@ -214,10 +214,52 @@ input[type="range"],
   gap: 8px;
 }
 
+.item-color-editor {
+  display: grid;
+  gap: 8px;
+}
+
 .item-edit-row {
   display: grid;
   grid-template-columns: 1fr 1fr 40px;
   gap: 8px;
+}
+
+.item-color-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 88px 88px;
+  align-items: end;
+  gap: 8px;
+  padding: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.item-color-row > span {
+  min-width: 0;
+  align-self: center;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-color-row label {
+  gap: 5px;
+  font-size: 11px;
+}
+
+.item-color-row input[type="color"] {
+  height: 34px;
+}
+
+.empty-hint {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12px;
 }
 
 .secondary-action,
