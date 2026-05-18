@@ -588,50 +588,26 @@ async function downloadPngFromPreview() {
   }
 
   const card = document.getElementById("popupCard");
-  const rect = card.getBoundingClientRect();
-  const margin = 46;
-  const width = Math.ceil(rect.width + margin * 2);
-  const height = Math.ceil(rect.height + margin * 2);
-  const exportHost = document.createElement("div");
-  const clone = card.cloneNode(true);
-
-  exportHost.className = stage.className;
-  exportHost.style.position = "fixed";
-  exportHost.style.left = "0";
-  exportHost.style.top = "0";
-  exportHost.style.width = `${width}px`;
-  exportHost.style.height = `${height}px`;
-  exportHost.style.overflow = "visible";
-  exportHost.style.background = "transparent";
-  exportHost.style.pointerEvents = "none";
-  exportHost.style.zIndex = "-1";
-  copyExportVariables(exportHost);
-
-  clone.style.position = "absolute";
-  clone.style.left = `${margin}px`;
-  clone.style.top = `${margin}px`;
-  clone.style.width = `${rect.width}px`;
-  clone.style.minWidth = "0";
-  clone.style.minHeight = "0";
-  clone.style.boxSizing = "border-box";
-  exportHost.append(clone);
-  document.body.append(exportHost);
 
   try {
-    const canvas = await html2canvas(exportHost, {
+    document.body.classList.add("exporting-png");
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    const canvas = await html2canvas(card, {
       backgroundColor: null,
       scale: 2,
-      width,
-      height,
       logging: false,
       useCORS: true,
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: document.documentElement.scrollWidth,
+      windowHeight: document.documentElement.scrollHeight,
     });
     downloadCanvas(fitCanvasToSquare(canvas, 350), filename);
   } catch (error) {
     console.error(error);
-    alert("PNG 저장에 실패했습니다. 새로고침 후 다시 시도해주세요.");
+    alert(`PNG 저장에 실패했습니다: ${error && error.message ? error.message : error}`);
   } finally {
-    exportHost.remove();
+    document.body.classList.remove("exporting-png");
   }
 }
 

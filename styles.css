@@ -705,6 +705,25 @@ h2 {
     rgba(5, 12, 22, var(--card-opacity));
 }
 
+body.exporting-png .popup-card {
+  background: rgba(10, 12, 20, var(--card-opacity)) !important;
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.38) !important;
+}
+
+body.exporting-png .rule::before {
+  background: rgba(255, 255, 255, 0.28) !important;
+}
+
+body.exporting-png .rule span,
+body.exporting-png .spark::before,
+body.exporting-png .spark::after {
+  box-shadow: none !important;
+}
+
+body.exporting-png .orbit-arrow::after {
+  filter: none !important;
+}
+
 .cta {
   border: 1px solid rgba(255, 255, 255, 0.24);
   background: linear-gradient(135deg, var(--accent), var(--blue));
