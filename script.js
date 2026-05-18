@@ -36,6 +36,8 @@ const templates = {
     calendarStart: "2026-09-26",
     calendarWeeks: "2",
     productImage: "",
+    exportWidth: "350",
+    exportHeight: "350",
   },
   holidayCalendar: {
     badgeText: "휴무일 공지",
@@ -74,6 +76,8 @@ const templates = {
     calendarStart: "2026-09-26",
     calendarWeeks: "2",
     productImage: "",
+    exportWidth: "350",
+    exportHeight: "350",
   },
   detailChange: {
     badgeText: "상세페이지 변경 안내",
@@ -109,6 +113,8 @@ const templates = {
     calendarStart: "2026-09-26",
     calendarWeeks: "1",
     productImage: "",
+    exportWidth: "350",
+    exportHeight: "350",
   },
   productStop: {
     badgeText: "🚨 긴급 판매중단 공지",
@@ -144,6 +150,8 @@ const templates = {
     calendarStart: "2026-09-26",
     calendarWeeks: "1",
     productImage: "",
+    exportWidth: "350",
+    exportHeight: "350",
   },
   holidayList: {
     badgeText: "",
@@ -183,6 +191,8 @@ const templates = {
     calendarStart: "2026-05-01",
     calendarWeeks: "1",
     productImage: "",
+    exportWidth: "350",
+    exportHeight: "350",
   },
 };
 
@@ -219,6 +229,8 @@ const fields = [
   "showNote",
   "showButton",
   "showImage",
+  "exportWidth",
+  "exportHeight",
 ];
 
 const storageKey = "popup-studio-template-state-v1";
@@ -422,17 +434,17 @@ function switchTemplate(templateType) {
   renderControls();
 }
 
-function fitCanvasToSquare(sourceCanvas, size = 350) {
+function fitCanvasToSize(sourceCanvas, targetWidth = 350, targetHeight = 350) {
   const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
   const ctx = canvas.getContext("2d");
-  const ratio = Math.min(size / sourceCanvas.width, size / sourceCanvas.height);
+  const ratio = Math.min(targetWidth / sourceCanvas.width, targetHeight / sourceCanvas.height);
   const width = Math.round(sourceCanvas.width * ratio);
   const height = Math.round(sourceCanvas.height * ratio);
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(sourceCanvas, Math.round((size - width) / 2), Math.round((size - height) / 2), width, height);
+  ctx.drawImage(sourceCanvas, Math.round((targetWidth - width) / 2), Math.round((targetHeight - height) / 2), width, height);
   return canvas;
 }
 
@@ -460,7 +472,9 @@ async function downloadPng() {
       logging: false,
       useCORS: true,
     });
-    downloadCanvas(fitCanvasToSquare(canvas, 350), `popup-${Date.now()}.png`);
+    const exportWidth = Math.max(100, Math.min(3000, Number(state.exportWidth) || 350));
+    const exportHeight = Math.max(100, Math.min(3000, Number(state.exportHeight) || 350));
+    downloadCanvas(fitCanvasToSize(canvas, exportWidth, exportHeight), `popup-${Date.now()}.png`);
   } catch (error) {
     alert(`PNG 저장에 실패했습니다: ${error && error.message ? error.message : error}`);
   } finally {

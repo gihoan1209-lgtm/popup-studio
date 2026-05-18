@@ -166,6 +166,12 @@ textarea {
   padding: 10px 11px;
 }
 
+select option,
+select optgroup {
+  background: #1f222c;
+  color: #ffffff;
+}
+
 input:focus,
 select:focus,
 textarea:focus {
