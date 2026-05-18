@@ -12,7 +12,7 @@
         <div class="brand-row">
           <div>
             <p class="eyebrow">Popup Studio</p>
-            <h1>팝업 이미지 편집기</h1>
+            <h1>팝업 템플릿 편집기</h1>
           </div>
           <button class="icon-button" id="resetButton" type="button" title="초기화" aria-label="초기화">
             <span aria-hidden="true">↺</span>
@@ -25,119 +25,132 @@
         </div>
 
         <div class="control-grid tab-panel active" data-panel="content">
+          <label class="wide">
+            템플릿
+            <select id="templateType">
+              <option value="migration">사이트 이전 안내</option>
+              <option value="holidayCalendar">휴무 일정 캘린더</option>
+              <option value="detailChange">상세페이지 변경 안내</option>
+              <option value="productStop">판매중단 공지</option>
+              <option value="holidayList">휴무일 목록 안내</option>
+            </select>
+          </label>
+
           <label>
-            배지
-            <input id="badgeText" type="text" value="NEW SITE OPEN" />
+            배지/상단 문구
+            <input id="badgeText" type="text" />
           </label>
           <label>
             제목
-            <input id="titleText" type="text" value="사이트 이전 안내" />
+            <input id="titleText" type="text" />
           </label>
           <label class="wide">
-            안내 문구
-            <textarea id="bodyText" rows="5">더 나은 서비스 제공을 위해
-새로운 사이트로 이전합니다.
-자세한 사항은 공지사항으로
-확인 부탁드리겠습니다.</textarea>
+            본문
+            <textarea id="bodyText" rows="5"></textarea>
+          </label>
+          <label>
+            하단 안내
+            <input id="noteText" type="text" />
+          </label>
+          <label>
+            버튼
+            <input id="primaryButton" type="text" />
           </label>
 
-          <div class="wide info-editor">
-            <div class="section-title">정보 항목</div>
-            <div id="infoItemEditor" class="info-item-editor"></div>
-            <button id="addInfoItemButton" class="secondary-action" type="button">항목 추가</button>
+          <div class="wide editor-block" data-template-tools="holidayCalendar">
+            <div class="section-title">휴무 캘린더</div>
+            <div class="control-grid nested">
+              <label>
+                시작일
+                <input id="calendarStart" type="date" />
+              </label>
+              <label>
+                표시 기간
+                <select id="calendarWeeks">
+                  <option value="1">1주</option>
+                  <option value="2">2주</option>
+                </select>
+              </label>
+            </div>
           </div>
 
-          <label>
-            안내 문구 하단
-            <input id="noteText" type="text" value="※ 자세한 내용은 공지사항 및 고객센터를 확인해주세요." />
-          </label>
-          <label>
-            메인 버튼
-            <input id="primaryButton" type="text" value="새 사이트 바로가기" />
-          </label>
+          <div class="wide editor-block" data-template-tools="productStop">
+            <div class="section-title">상품 이미지</div>
+            <input id="productImageInput" type="file" accept="image/*" />
+            <button id="clearImageButton" class="secondary-action" type="button">이미지 제거</button>
+          </div>
+
+          <div class="wide editor-block">
+            <div class="section-title">항목</div>
+            <div id="infoItemEditor" class="item-editor"></div>
+            <button id="addInfoItemButton" class="secondary-action" type="button">항목 추가</button>
+          </div>
         </div>
 
         <div class="control-grid tab-panel" data-panel="design">
-          <label class="wide">
-            디자인 프리셋
-            <select id="themeStyle">
-              <option value="neon">네온 이전 안내</option>
-              <option value="gold">골드 프리미엄</option>
-              <option value="clean">깔끔한 공지</option>
-              <option value="midnight">딥 블루</option>
-            </select>
+          <label>
+            배경색
+            <input id="cardBgColor" type="color" />
+          </label>
+          <label>
+            보조 배경
+            <input id="panelBgColor" type="color" />
           </label>
           <label>
             강조색
-            <input id="accentColor" type="color" value="#8f49ff" />
+            <input id="accentColor" type="color" />
           </label>
           <label>
             보조색
-            <input id="blueColor" type="color" value="#2367ff" />
+            <input id="secondaryColor" type="color" />
           </label>
           <label>
             제목 글씨
-            <input id="titleColor" type="color" value="#d9ccff" />
+            <input id="titleColor" type="color" />
           </label>
           <label>
             본문 글씨
-            <input id="bodyColor" type="color" value="#ffffff" />
+            <input id="bodyColor" type="color" />
           </label>
           <label>
-            정보 제목 글씨
-            <input id="infoLabelColor" type="color" value="#c9c4d6" />
+            항목 제목
+            <input id="itemLabelColor" type="color" />
           </label>
           <label>
-            정보 내용 글씨
-            <input id="infoValueColor" type="color" value="#ffffff" />
+            항목 내용
+            <input id="itemValueColor" type="color" />
           </label>
           <label>
-            하단 안내 글씨
-            <input id="noteColor" type="color" value="#c5c0cc" />
+            카드 너비
+            <input id="cardWidth" type="range" min="72" max="96" />
           </label>
           <label>
-            버튼 글씨
-            <input id="buttonTextColor" type="color" value="#ffffff" />
-          </label>
-          <label>
-            배지 글씨
-            <input id="badgeColor" type="color" value="#d9ccff" />
-          </label>
-          <label>
-            팝업 너비
-            <input id="popupWidth" type="range" min="58" max="86" value="73" />
+            카드 높이
+            <input id="cardHeight" type="range" min="72" max="96" />
           </label>
           <label>
             모서리
-            <input id="popupRadius" type="range" min="0" max="38" value="22" />
+            <input id="cardRadius" type="range" min="0" max="34" />
           </label>
           <label>
             내부 여백
-            <input id="popupPadding" type="range" min="34" max="82" value="58" />
-          </label>
-          <label>
-            배경 밝기
-            <input id="backdropRange" type="range" min="15" max="85" value="42" />
-          </label>
-          <label>
-            카드 투명도
-            <input id="cardOpacity" type="range" min="70" max="100" value="88" />
+            <input id="cardPadding" type="range" min="18" max="58" />
           </label>
           <label>
             제목 크기
-            <input id="titleSize" type="range" min="46" max="92" value="76" />
+            <input id="titleSize" type="range" min="26" max="68" />
           </label>
           <label>
             본문 크기
-            <input id="bodySize" type="range" min="18" max="30" value="25" />
+            <input id="bodySize" type="range" min="14" max="30" />
           </label>
           <label>
-            정보 글자
-            <input id="infoSize" type="range" min="18" max="28" value="23" />
+            항목 크기
+            <input id="itemSize" type="range" min="13" max="28" />
           </label>
           <label>
-            버튼 모서리
-            <input id="buttonRadius" type="range" min="0" max="28" value="10" />
+            이미지 크기
+            <input id="imageSize" type="range" min="92" max="230" />
           </label>
           <label>
             전체 정렬
@@ -147,26 +160,35 @@
             </select>
           </label>
           <label>
-            안내문구 정렬
-            <select id="bodyAlign">
-              <option value="left">왼쪽</option>
-              <option value="center">가운데</option>
-            </select>
-          </label>
-          <label>
-            정보 항목 정렬
-            <select id="infoAlign">
+            항목 정렬
+            <select id="itemAlign">
               <option value="left">왼쪽</option>
               <option value="center">가운데</option>
             </select>
           </label>
           <label class="check-row">
-            <input id="showIcon" type="checkbox" checked />
-            일러스트 표시
+            <input id="showBadge" type="checkbox" />
+            배지 표시
           </label>
           <label class="check-row">
-            <input id="showInfo" type="checkbox" checked />
-            정보 박스 표시
+            <input id="showBody" type="checkbox" />
+            본문 표시
+          </label>
+          <label class="check-row">
+            <input id="showItems" type="checkbox" />
+            항목 표시
+          </label>
+          <label class="check-row">
+            <input id="showNote" type="checkbox" />
+            하단 안내 표시
+          </label>
+          <label class="check-row">
+            <input id="showButton" type="checkbox" />
+            버튼 표시
+          </label>
+          <label class="check-row">
+            <input id="showImage" type="checkbox" />
+            이미지 표시
           </label>
         </div>
 
@@ -177,48 +199,8 @@
       </section>
 
       <section class="preview-panel" aria-label="팝업 미리보기">
-        <div class="stage theme-neon" id="exportStage">
-          <div class="shop-backdrop" aria-hidden="true">
-            <div class="nav-haze"></div>
-            <div class="product-row top">
-              <div class="product-card">◇<span>다이아몬드</span></div>
-              <div class="product-card tall">▯<span>프리미엄</span></div>
-              <div class="product-card">▥<span>럭셔리</span></div>
-            </div>
-            <div class="product-row bottom">
-              <div class="price">₩39,000</div>
-              <div class="price">₩69,000</div>
-              <div class="price">₩129,000</div>
-              <div class="price">₩259,000</div>
-            </div>
-          </div>
-
-          <article class="popup-card" id="popupCard">
-            <div class="pill" data-bind="badgeText">NEW SITE OPEN</div>
-            <h2 data-bind="titleText">사이트 이전 안내</h2>
-            <div class="rule"><span></span></div>
-
-            <div class="message-area">
-              <p class="body-copy" data-bind="bodyText"></p>
-              <div class="hero-icon" aria-hidden="true">
-                <div class="window">
-                  <span></span><span></span><span></span>
-                  <div class="pin"></div>
-                </div>
-                <div class="orbit-arrow"></div>
-                <i class="spark one"></i>
-                <i class="spark two"></i>
-              </div>
-            </div>
-
-            <div class="info-box" id="infoBox"></div>
-
-            <p class="note" data-bind="noteText">※ 자세한 내용은 공지사항 및 고객센터를 확인해주세요.</p>
-
-            <div class="button-row">
-              <button class="cta" type="button"><span data-bind="primaryButton">새 사이트 바로가기</span><i></i></button>
-            </div>
-          </article>
+        <div class="stage">
+          <article id="popupCard" class="popup-card"></article>
         </div>
       </section>
     </main>
