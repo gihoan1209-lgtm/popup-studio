@@ -287,6 +287,49 @@ function visibleItems() {
   return state.infoItems.filter((item) => item.label.trim() || item.value.trim());
 }
 
+function parseMonthDayToken(value) {
+  const match = String(value || "").match(/(\d{1,2})[/.](\d{1,2})/);
+  if (!match) return null;
+  return { month: Number(match[1]), day: Number(match[2]) };
+}
+
+function dateFromMonthDay(token, baseYear, startMonth) {
+  let year = baseYear;
+  if (token.month < startMonth - 6) year += 1;
+  if (token.month > startMonth + 6) year -= 1;
+  return new Date(year, token.month - 1, token.day);
+}
+
+function holidayRanges(start) {
+  const baseYear = start.getFullYear();
+  const startMonth = start.getMonth() + 1;
+
+  return visibleItems()
+    .map((item) => {
+      const source = `${item.label} ${item.value}`;
+      const tokens = [...source.matchAll(/(\d{1,2})[/.](\d{1,2})/g)]
+        .map((match) => parseMonthDayToken(match[0]))
+        .filter(Boolean);
+      if (tokens.length === 0) return null;
+
+      const from = dateFromMonthDay(tokens[0], baseYear, startMonth);
+      const to = dateFromMonthDay(tokens[1] || tokens[0], baseYear, startMonth);
+      if (to < from) to.setFullYear(to.getFullYear() + 1);
+
+      return {
+        label: item.label.trim() || item.value.trim(),
+        from,
+        to,
+      };
+    })
+    .filter(Boolean);
+}
+
+function sameOrBetween(date, from, to) {
+  const value = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  return value >= from.getTime() && value <= to.getTime();
+}
+
 function renderInfoEditor() {
   infoItemEditor.innerHTML = "";
   state.infoItems.forEach((item, index) => {
@@ -355,17 +398,15 @@ function calendar() {
   const start = new Date(`${state.calendarStart}T00:00:00`);
   const weeks = Number(state.calendarWeeks);
   const dayNames = ["월", "화", "수", "목", "금", "토", "일"];
-  const marked = new Set(
-    visibleItems()
-      .map((item) => item.label.match(/\d{1,2}\/\d{1,2}|\d{1,2}\.\d{1,2}/)?.[0])
-      .filter(Boolean)
-      .map((value) => value.replace(".", "/"))
-  );
+  const ranges = holidayRanges(start);
   const cells = Array.from({ length: weeks * 7 }, (_, index) => {
     const date = new Date(start);
     date.setDate(start.getDate() + index);
-    const key = `${date.getMonth() + 1}/${date.getDate()}`;
-    return `<div class="day-cell ${marked.has(key) ? "marked" : ""}"><strong>${date.getDate()}</strong></div>`;
+    const events = ranges.filter((range) => sameOrBetween(date, range.from, range.to));
+    const eventHtml = events.length
+      ? `<div class="day-events">${events.map((event) => `<span>${escapeHtml(event.label)}</span>`).join("")}</div>`
+      : "";
+    return `<div class="day-cell ${events.length ? "marked" : ""}"><strong>${date.getDate()}</strong>${eventHtml}</div>`;
   }).join("");
   return `
     <div class="calendar">
