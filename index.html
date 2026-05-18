@@ -77,6 +77,24 @@
           <div class="wide editor-block" data-template-tools="productStop">
             <div class="section-title">상품 이미지</div>
             <input id="productImageInput" type="file" accept="image/*" />
+            <div class="control-grid nested image-controls">
+              <label>
+                이미지 확대
+                <input id="imageZoom" type="range" min="80" max="220" />
+              </label>
+              <label>
+                가로 위치
+                <input id="imageOffsetX" type="range" min="-80" max="80" />
+              </label>
+              <label>
+                세로 위치
+                <input id="imageOffsetY" type="range" min="-80" max="80" />
+              </label>
+              <label>
+                모서리
+                <input id="imageRadius" type="range" min="0" max="50" />
+              </label>
+            </div>
             <button id="clearImageButton" class="secondary-action" type="button">이미지 제거</button>
           </div>
 

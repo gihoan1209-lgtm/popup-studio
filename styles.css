@@ -125,6 +125,10 @@ h1 {
   margin-top: 0;
 }
 
+.image-controls {
+  margin-top: 10px;
+}
+
 .tab-panel,
 .hidden {
   display: none;
@@ -469,19 +473,30 @@ input[type="range"],
   border: 0;
 }
 
-.product-image {
+.product-image-frame,
+.image-placeholder {
   width: var(--image-size);
   height: var(--image-size);
-  border-radius: 50%;
-  object-fit: cover;
+  border-radius: var(--image-radius);
   border: 3px solid rgba(255, 255, 255, 0.9);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
 }
 
+.product-image-frame {
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transform: translate(var(--image-offset-x), var(--image-offset-y)) scale(var(--image-zoom));
+  transform-origin: center;
+}
+
 .image-placeholder {
-  width: var(--image-size);
-  height: var(--image-size);
-  border-radius: 50%;
   display: grid;
   place-items: center;
   background: rgba(255, 255, 255, 0.12);

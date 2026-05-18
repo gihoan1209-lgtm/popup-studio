@@ -25,6 +25,10 @@ const templates = {
     bodySize: "20",
     itemSize: "20",
     imageSize: "160",
+    imageZoom: "100",
+    imageOffsetX: "0",
+    imageOffsetY: "0",
+    imageRadius: "50",
     contentAlign: "center",
     itemAlign: "left",
     showBadge: true,
@@ -65,6 +69,10 @@ const templates = {
     bodySize: "16",
     itemSize: "18",
     imageSize: "160",
+    imageZoom: "100",
+    imageOffsetX: "0",
+    imageOffsetY: "0",
+    imageRadius: "50",
     contentAlign: "center",
     itemAlign: "center",
     showBadge: true,
@@ -102,6 +110,10 @@ const templates = {
     bodySize: "18",
     itemSize: "18",
     imageSize: "160",
+    imageZoom: "100",
+    imageOffsetX: "0",
+    imageOffsetY: "0",
+    imageRadius: "50",
     contentAlign: "center",
     itemAlign: "center",
     showBadge: true,
@@ -139,6 +151,10 @@ const templates = {
     bodySize: "17",
     itemSize: "18",
     imageSize: "170",
+    imageZoom: "100",
+    imageOffsetX: "0",
+    imageOffsetY: "0",
+    imageRadius: "50",
     contentAlign: "center",
     itemAlign: "center",
     showBadge: true,
@@ -180,6 +196,10 @@ const templates = {
     bodySize: "17",
     itemSize: "21",
     imageSize: "160",
+    imageZoom: "100",
+    imageOffsetX: "0",
+    imageOffsetY: "0",
+    imageRadius: "50",
     contentAlign: "center",
     itemAlign: "left",
     showBadge: false,
@@ -221,6 +241,10 @@ const fields = [
   "bodySize",
   "itemSize",
   "imageSize",
+  "imageZoom",
+  "imageOffsetX",
+  "imageOffsetY",
+  "imageRadius",
   "contentAlign",
   "itemAlign",
   "showBadge",
@@ -242,6 +266,12 @@ const infoItemEditor = $("infoItemEditor");
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
+}
+
+function withTemplateDefaults(nextState) {
+  const templateType = nextState.templateType || "migration";
+  const template = templates[templateType] || templates.migration;
+  return { templateType, ...clone(template), ...nextState };
 }
 
 function inputValue(input) {
@@ -275,8 +305,12 @@ function applyVariables() {
     "--body-size": `${state.bodySize}px`,
     "--item-size": `${state.itemSize}px`,
     "--image-size": `${state.imageSize}px`,
+    "--image-zoom": Number(state.imageZoom || 100) / 100,
+    "--image-offset-x": `${state.imageOffsetX || 0}%`,
+    "--image-offset-y": `${state.imageOffsetY || 0}%`,
+    "--image-radius": `${state.imageRadius || 50}%`,
   };
-  Object.entries(vars).forEach(([key, value]) => document.documentElement.style.setProperty(key, value));
+  Object.entries(vars).forEach(([key, value]) => document.documentElement.style.setProperty(key, String(value)));
 }
 
 function saveState() {
@@ -425,7 +459,13 @@ function legendList() {
 
 function productImage() {
   if (!state.showImage) return "";
-  if (state.productImage) return `<img class="product-image" src="${state.productImage}" alt="상품 이미지" />`;
+  if (state.productImage) {
+    return `
+      <div class="product-image-frame">
+        <img class="product-image" src="${state.productImage}" alt="상품 이미지" />
+      </div>
+    `;
+  }
   return `<div class="image-placeholder">이미지</div>`;
 }
 
@@ -594,5 +634,5 @@ $("copyButton").addEventListener("click", async () => navigator.clipboard.writeT
 $("downloadButton").addEventListener("click", downloadPng);
 
 const saved = localStorage.getItem(storageKey);
-if (saved) state = { ...state, ...JSON.parse(saved) };
+if (saved) state = withTemplateDefaults({ ...state, ...JSON.parse(saved) });
 renderControls();
