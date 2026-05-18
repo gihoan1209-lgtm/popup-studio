@@ -120,18 +120,36 @@ h1 {
 
 .editor-columns {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, var(--content-panel-width, 1fr)) minmax(0, var(--design-panel-width, 1fr));
   gap: 18px;
   margin-top: 20px;
   align-items: start;
+  transition: grid-template-columns 0.2s ease;
+}
+
+.editor-columns.content-collapsed {
+  --content-panel-width: 48px;
+  --design-panel-width: 1fr;
+}
+
+.editor-columns.design-collapsed {
+  --content-panel-width: 1fr;
+  --design-panel-width: 48px;
+}
+
+.editor-columns.content-collapsed.design-collapsed {
+  --content-panel-width: 48px;
+  --design-panel-width: 48px;
 }
 
 .editor-column {
   min-width: 0;
+  min-height: 220px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.025);
   padding: 14px;
+  overflow: hidden;
 }
 
 .editor-column .editor-section-title {
@@ -142,10 +160,28 @@ h1 {
 
 .editor-column.collapsed {
   align-self: start;
+  min-width: 48px;
+  padding: 10px 6px;
 }
 
 .editor-column.collapsed .tab-panel {
   display: none;
+}
+
+.editor-column.collapsed .editor-section-title {
+  height: 190px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+.editor-column.collapsed .editor-section-title span,
+.editor-column.collapsed .collapse-button {
+  writing-mode: vertical-rl;
 }
 
 .collapse-button {
@@ -159,6 +195,12 @@ h1 {
   font-weight: 900;
   padding: 0 10px;
   white-space: nowrap;
+}
+
+.editor-column.collapsed .collapse-button {
+  min-width: 30px;
+  min-height: auto;
+  padding: 10px 4px;
 }
 
 .tab-button {

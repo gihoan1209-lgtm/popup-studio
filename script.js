@@ -825,8 +825,10 @@ document.querySelectorAll("[data-toggle-section]").forEach((button) => {
   button.addEventListener("click", () => {
     const section = document.querySelector(`[data-editor-section='${button.dataset.toggleSection}']`);
     if (!section) return;
+    const columns = section.closest(".editor-columns");
     const collapsed = section.classList.toggle("collapsed");
-    button.textContent = collapsed ? "펼치기" : "접기";
+    if (columns) columns.classList.toggle(`${button.dataset.toggleSection}-collapsed`, collapsed);
+    button.textContent = collapsed ? "펼치기 >>" : "<< 접기";
   });
 });
 
