@@ -456,12 +456,22 @@ function renderInfoEditor() {
     row.innerHTML =
       state.templateType === "holidayCalendar"
         ? `
-          <input type="text" placeholder="항목 제목" value="${escapeHtml(item.label)}" data-info-field="label" data-index="${index}" />
-          <input type="date" value="${escapeHtml(item.startDate || "")}" data-info-field="startDate" data-index="${index}" />
-          <button type="button" aria-label="삭제" data-remove-index="${index}">×</button>
-          <input type="date" value="${escapeHtml(item.endDate || item.startDate || "")}" data-info-field="endDate" data-index="${index}" />
+          <div class="calendar-item-head">
+            <input type="text" placeholder="항목 제목" value="${escapeHtml(item.label)}" data-info-field="label" data-index="${index}" />
+            <button type="button" aria-label="삭제" data-remove-index="${index}">×</button>
+          </div>
+          <div class="calendar-date-grid">
+            <label>
+              시작일
+              <input type="date" value="${escapeHtml(item.startDate || "")}" data-info-field="startDate" data-index="${index}" />
+            </label>
+            <label>
+              종료일
+              <input type="date" value="${escapeHtml(item.endDate || item.startDate || "")}" data-info-field="endDate" data-index="${index}" />
+            </label>
+          </div>
           <input type="text" placeholder="날짜칸 문구" value="${escapeHtml(item.calendarText || item.label)}" data-info-field="calendarText" data-index="${index}" />
-          <span class="date-range-preview">${escapeHtml(formatDateRange(item.startDate, item.endDate))}</span>
+          <div class="date-range-preview">하단 표시: ${escapeHtml(formatDateRange(item.startDate, item.endDate))}</div>
         `
         : `
           <input type="text" placeholder="항목 제목" value="${escapeHtml(item.label)}" data-info-field="label" data-index="${index}" />
