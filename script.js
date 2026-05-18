@@ -1,13 +1,14 @@
 const templates = {
   migration: {
-    badgeText: "여기에 작성하세요",
-    titleText: "여기에 작성하세요",
-    bodyText: "여기에 작성하세요",
-    noteText: "여기에 작성하세요",
-    primaryButton: "여기에 작성하세요",
+    badgeText: "NEW SITE OPEN",
+    titleText: "사이트 이전 안내",
+    bodyText: "더 나은 서비스 제공을 위해\n새로운 사이트로 이전합니다.\n자세한 사항은 공지사항으로\n확인 부탁드리겠습니다.",
+    noteText: "※ 자세한 내용은 공지사항 및 고객센터를 확인해주세요.",
+    primaryButton: "새 사이트 바로가기",
     infoItems: [
-      { label: "여기에 작성하세요", value: "여기에 작성하세요" },
-      { label: "여기에 작성하세요", value: "여기에 작성하세요" },
+      { label: "병행 운영기간", value: "2026.05.18~31" },
+      { label: "기존 사이트 종료", value: "2026.05.31" },
+      { label: "신규사이트 운영일", value: "2026.06.01" },
     ],
     cardBgColor: "#080b13",
     panelBgColor: "#151126",
@@ -44,14 +45,14 @@ const templates = {
     exportHeight: "350",
   },
   holidayCalendar: {
-    badgeText: "여기에 작성하세요",
-    titleText: "여기에 작성하세요",
+    badgeText: "휴무일 공지",
+    titleText: "추석 휴무일정",
     bodyText: "",
     noteText: "",
     primaryButton: "",
     infoItems: [
-      { label: "여기에 작성하세요", value: "9/26~10/3" },
-      { label: "여기에 작성하세요", value: "9/27~10/2" },
+      { label: "택배사 휴무", value: "9/26~10/3" },
+      { label: "고객센터 휴무", value: "9/27~10/2" },
     ],
     cardBgColor: "#efefef",
     panelBgColor: "#ffffff",
@@ -88,11 +89,11 @@ const templates = {
     exportHeight: "350",
   },
   detailChange: {
-    badgeText: "여기에 작성하세요",
-    titleText: "여기에 작성하세요",
-    bodyText: "여기에 작성하세요",
+    badgeText: "상세페이지 변경 안내",
+    titleText: "0000 이미지 변경",
+    bodyText: "상품번호 000",
     noteText: "",
-    primaryButton: "여기에 작성하세요",
+    primaryButton: "내용 확인하기",
     infoItems: [],
     cardBgColor: "#000000",
     panelBgColor: "#111111",
@@ -129,10 +130,10 @@ const templates = {
     exportHeight: "350",
   },
   productStop: {
-    badgeText: "여기에 작성하세요",
+    badgeText: "긴급 판매중단 공지",
     titleText: "",
-    bodyText: "여기에 작성하세요",
-    noteText: "여기에 작성하세요",
+    bodyText: "디자인권 이슈로 인해 판매 중지",
+    noteText: "해당 제품은 현재 판매가 중지되었습니다.\n이용에 불편을 드려 죄송합니다.",
     primaryButton: "",
     infoItems: [],
     cardBgColor: "#1e3265",
@@ -171,14 +172,14 @@ const templates = {
   },
   holidayList: {
     badgeText: "",
-    titleText: "여기에 작성하세요",
+    titleText: "0월 휴무일 안내",
     bodyText: "",
-    noteText: "여기에 작성하세요",
+    noteText: "※휴무일에는 고객센터가 운영되지 않으니\n이용에 참고부탁드립니다.",
     primaryButton: "",
     infoItems: [
-      { label: "여기에 작성하세요", value: "여기에 작성하세요" },
-      { label: "여기에 작성하세요", value: "여기에 작성하세요" },
-      { label: "여기에 작성하세요", value: "여기에 작성하세요" },
+      { label: "5/1(목), 5/5~6 (월~화)", value: "전체휴무" },
+      { label: "5/2(금)", value: "정상운영" },
+      { label: "5/7일(수)", value: "업무재개" },
     ],
     cardBgColor: "#655bd3",
     panelBgColor: "#ffffff",
@@ -257,7 +258,7 @@ const fields = [
   "exportHeight",
 ];
 
-const storageKey = "popup-studio-template-state-v2";
+const storageKey = "popup-studio-template-state-v3";
 let state = { templateType: "migration", ...templates.migration };
 
 const $ = (id) => document.getElementById(id);
@@ -686,8 +687,9 @@ document.querySelectorAll(".tab-button").forEach((button) => {
 });
 
 $("resetButton").addEventListener("click", () => switchTemplate(state.templateType));
-$("copyButton").addEventListener("click", async () => navigator.clipboard.writeText(JSON.stringify(state, null, 2)));
 $("downloadButton").addEventListener("click", downloadPng);
+document.addEventListener("contextmenu", (event) => event.preventDefault());
+document.addEventListener("copy", (event) => event.preventDefault());
 
 const saved = localStorage.getItem(storageKey);
 if (saved) state = withTemplateDefaults({ ...state, ...JSON.parse(saved) });

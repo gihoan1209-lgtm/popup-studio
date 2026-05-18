@@ -29,6 +29,7 @@ body {
   min-height: 100vh;
   background: #0d1018;
   color: #fff;
+  user-select: none;
 }
 
 button,
@@ -36,6 +37,7 @@ input,
 select,
 textarea {
   font: inherit;
+  user-select: auto;
 }
 
 .app-shell {
