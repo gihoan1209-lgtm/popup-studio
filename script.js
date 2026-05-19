@@ -422,7 +422,7 @@ function deleteProject() {
 }
 
 function visibleItems() {
-  return state.infoItems.filter((item) => item.label.trim() || item.value.trim());
+  return state.infoItems.filter((item) => item.label.trim() || item.value.trim() || item.startDate || item.endDate);
 }
 
 function normalizeInfoItems(nextState) {
@@ -439,18 +439,24 @@ function normalizeInfoItems(nextState) {
       startDate: item.startDate || "",
       endDate: item.endDate || "",
       calendarText: item.calendarText || "",
+      valueMode: item.valueMode || "",
     };
 
-    if (nextState.templateType === "holidayCalendar" && (!normalized.startDate || !normalized.endDate)) {
-      const range = rangeFromText(`${normalized.label} ${normalized.value}`, nextState.calendarStart);
+    if (!normalized.startDate || !normalized.endDate) {
+      const dateSource = nextState.templateType === "holidayCalendar" ? `${normalized.label} ${normalized.value}` : normalized.value;
+      const range = rangeFromText(dateSource, nextState.calendarStart);
       if (range) {
         normalized.startDate ||= dateInputValue(range.from);
         normalized.endDate ||= dateInputValue(range.to);
       }
     }
 
+    normalized.valueMode ||= normalized.startDate || normalized.endDate ? "date" : "keyin";
+    if (normalized.valueMode === "date") {
+      normalized.value = formatDateRange(normalized.startDate, normalized.endDate);
+    }
+
     if (nextState.templateType === "holidayCalendar") {
-      normalized.value = normalized.value || formatDateRange(normalized.startDate, normalized.endDate);
       normalized.calendarText = normalized.calendarText || normalized.label;
     }
 
@@ -487,10 +493,26 @@ function itemCalendarSize(item) {
   return safeSize(item.calendarSize, Math.max(7, Math.round(Number(state.itemSize) * 0.48)));
 }
 
+function itemValueMode(item) {
+  return item.valueMode === "date" ? "date" : "keyin";
+}
+
+function itemDisplayValue(item) {
+  return itemValueMode(item) === "date" ? formatDateRange(item.startDate, item.endDate) : item.value;
+}
+
 function parseMonthDayToken(value) {
   const match = String(value || "").match(/(\d{1,2})[/.](\d{1,2})/);
   if (!match) return null;
   return { month: Number(match[1]), day: Number(match[2]) };
+}
+
+function fullDateTokens(source) {
+  return [...String(source || "").matchAll(/(20\d{2})[./-](\d{1,2})[./-](\d{1,2})/g)].map((match) => ({
+    year: Number(match[1]),
+    month: Number(match[2]),
+    day: Number(match[3]),
+  }));
 }
 
 function dateFromMonthDay(token, baseYear, startMonth) {
@@ -525,6 +547,20 @@ function formatDateRange(startDate, endDate) {
 function rangeFromText(source, calendarStart) {
   const start = new Date(`${calendarStart}T00:00:00`);
   if (Number.isNaN(start.getTime())) return null;
+  const fullTokens = fullDateTokens(source);
+  if (fullTokens.length > 0) {
+    const fromToken = fullTokens[0];
+    let toToken = fullTokens[1];
+    if (!toToken) {
+      const tailDay = String(source || "").match(/[~-]\s*(\d{1,2})(?![./-]\d)/);
+      toToken = tailDay ? { ...fromToken, day: Number(tailDay[1]) } : fromToken;
+    }
+    const from = new Date(fromToken.year, fromToken.month - 1, fromToken.day);
+    const to = new Date(toToken.year, toToken.month - 1, toToken.day);
+    if (to < from) to.setMonth(to.getMonth() + 1);
+    return { from, to };
+  }
+
   const baseYear = start.getFullYear();
   const startMonth = start.getMonth() + 1;
   const tokens = [...String(source || "").matchAll(/(\d{1,2})[/.](\d{1,2})/g)]
@@ -573,14 +609,23 @@ function renderInfoEditor() {
   infoItemEditor.innerHTML = "";
   state.infoItems.forEach((item, index) => {
     const row = document.createElement("div");
-    row.className = state.templateType === "holidayCalendar" ? "item-edit-row calendar-item-row" : "item-edit-row";
-    row.innerHTML =
-      state.templateType === "holidayCalendar"
-        ? `
+    const isDateMode = itemValueMode(item) === "date";
+    row.className = "item-edit-row calendar-item-row";
+    row.innerHTML = `
           <div class="calendar-item-head">
             <input type="text" placeholder="항목 제목" value="${escapeHtml(item.label)}" data-info-field="label" data-index="${index}" />
             <button type="button" aria-label="삭제" data-remove-index="${index}">×</button>
           </div>
+          <label>
+            입력 방식
+            <select data-info-field="valueMode" data-index="${index}">
+              <option value="date" ${isDateMode ? "selected" : ""}>시작일/종료일</option>
+              <option value="keyin" ${isDateMode ? "" : "selected"}>KEYIN</option>
+            </select>
+          </label>
+          ${
+            isDateMode || state.templateType === "holidayCalendar"
+              ? `
           <div class="calendar-date-grid">
             <label>
               시작일
@@ -591,13 +636,22 @@ function renderInfoEditor() {
               <input type="date" value="${escapeHtml(item.endDate || item.startDate || "")}" data-info-field="endDate" data-index="${index}" />
             </label>
           </div>
+          <div class="date-range-preview">${state.templateType === "holidayCalendar" && !isDateMode ? "캘린더 기간" : "항목 표시"}: ${escapeHtml(formatDateRange(item.startDate, item.endDate))}</div>
+                `
+              : `<input type="text" placeholder="항목 내용 KEYIN" value="${escapeHtml(item.value)}" data-info-field="value" data-index="${index}" />`
+          }
+          ${
+            state.templateType === "holidayCalendar" && !isDateMode
+              ? `<input type="text" placeholder="하단 표시 KEYIN" value="${escapeHtml(item.value)}" data-info-field="value" data-index="${index}" />`
+              : ""
+          }
+          ${
+            state.templateType === "holidayCalendar"
+              ? `
           <input type="text" placeholder="날짜칸 문구" value="${escapeHtml(item.calendarText || item.label)}" data-info-field="calendarText" data-index="${index}" />
-          <div class="date-range-preview">하단 표시: ${escapeHtml(formatDateRange(item.startDate, item.endDate))}</div>
-        `
-        : `
-          <input type="text" placeholder="항목 제목" value="${escapeHtml(item.label)}" data-info-field="label" data-index="${index}" />
-          <input type="text" placeholder="항목 내용" value="${escapeHtml(item.value)}" data-info-field="value" data-index="${index}" />
-          <button type="button" aria-label="삭제" data-remove-index="${index}">×</button>
+                `
+              : ""
+          }
         `;
     infoItemEditor.append(row);
   });
@@ -688,7 +742,7 @@ function infoList(extraClass = "") {
         <div class="info-row">
           <strong style="color:${itemLabelColor(item)};font-size:${itemLabelSize(item)}px">${escapeHtml(item.label)}</strong>
           <span class="divider"></span>
-          <b style="color:${itemContentColor(item)};font-size:${itemContentSize(item)}px">${escapeHtml(item.value)}</b>
+          <b style="color:${itemContentColor(item)};font-size:${itemContentSize(item)}px">${escapeHtml(itemDisplayValue(item))}</b>
         </div>
       `
     )
@@ -721,7 +775,7 @@ function calendar() {
 function legendList() {
   if (!state.showItems) return "";
   return `<div class="legend-list">${visibleItems()
-    .map((item) => `<div class="legend-row"><strong style="background:${itemLabelColor(item)};font-size:${itemLabelSize(item)}px">${escapeHtml(item.label)}</strong><b style="color:${itemContentColor(item)};font-size:${itemContentSize(item)}px">${escapeHtml(item.value || formatDateRange(item.startDate, item.endDate))}</b></div>`)
+    .map((item) => `<div class="legend-row"><strong style="background:${itemLabelColor(item)};font-size:${itemLabelSize(item)}px">${escapeHtml(item.label)}</strong><b style="color:${itemContentColor(item)};font-size:${itemContentSize(item)}px">${escapeHtml(itemDisplayValue(item))}</b></div>`)
     .join("")}</div>`;
 }
 
@@ -780,7 +834,7 @@ function renderControls() {
 }
 
 function switchTemplate(templateType) {
-  state = { templateType, ...clone(templates[templateType]) };
+  state = withTemplateDefaults({ templateType, ...clone(templates[templateType]) });
   saveState();
   renderControls();
 }
@@ -845,22 +899,36 @@ fields.forEach((id) => {
   });
 });
 
-infoItemEditor.addEventListener("input", (event) => {
+function handleInfoItemInput(event) {
   const index = Number(event.target.dataset.index);
   const field = event.target.dataset.infoField;
   if (!Number.isNaN(index) && field) {
     state.infoItems[index][field] = event.target.value;
-    if (state.templateType === "holidayCalendar") {
-      const item = state.infoItems[index];
-      if (field === "label" && !item.calendarText) item.calendarText = event.target.value;
+    const item = state.infoItems[index];
+    if (field === "valueMode") {
+      if (event.target.value === "date") {
+        const range = rangeFromText(`${item.label} ${item.value}`, state.calendarStart);
+        item.startDate ||= range ? dateInputValue(range.from) : state.calendarStart;
+        item.endDate ||= range ? dateInputValue(range.to) : item.startDate;
+        item.value = formatDateRange(item.startDate, item.endDate);
+      }
+      renderInfoEditor();
+    }
+    if (itemValueMode(item) === "date" && ["startDate", "endDate"].includes(field)) {
       item.value = formatDateRange(item.startDate, item.endDate);
+      renderInfoEditor();
+    }
+    if (state.templateType === "holidayCalendar" && field === "label" && !item.calendarText) {
+      item.calendarText = event.target.value;
     }
     saveState();
-    if (state.templateType === "holidayCalendar" && ["startDate", "endDate"].includes(field)) renderInfoEditor();
     renderItemColorEditor();
     renderCard();
   }
-});
+}
+
+infoItemEditor.addEventListener("input", handleInfoItemInput);
+infoItemEditor.addEventListener("change", handleInfoItemInput);
 
 itemColorEditor.addEventListener("input", (event) => {
   const index = Number(event.target.dataset.index);
@@ -886,8 +954,8 @@ infoItemEditor.addEventListener("click", (event) => {
 $("addInfoItemButton").addEventListener("click", () => {
   const nextItem =
     state.templateType === "holidayCalendar"
-      ? { label: "", value: "", startDate: state.calendarStart, endDate: state.calendarStart, calendarText: "", color: "", valueColor: "" }
-      : { label: "", value: "", color: "", valueColor: "" };
+      ? { label: "", value: formatDateRange(state.calendarStart, state.calendarStart), valueMode: "date", startDate: state.calendarStart, endDate: state.calendarStart, calendarText: "", color: "", valueColor: "" }
+      : { label: "", value: "", valueMode: "keyin", startDate: "", endDate: "", color: "", valueColor: "" };
   state.infoItems.push(nextItem);
   renderInfoEditor();
   renderItemColorEditor();
